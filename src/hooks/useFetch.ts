@@ -10,14 +10,14 @@ interface Response {
 	rows: string;
 }
 
-interface CamposAd {
+export interface CamposAd {
     id: number;
     nombre: string;
     tipo: string;
     estatus: string;
 }
 
-interface OficinasRecau {
+export interface OficinasRecau {
     id: number;
     nombre: string;
     horario: string;
@@ -56,31 +56,31 @@ export function useFetch(url: string) {
 }
 
 
-export function useDelete(url: string) {
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<Error | null>(null);
+// export function useDelete(url: string) {
+//     const [loading, setLoading] = useState(false);
+//     const [error, setError] = useState<Error | null>(null);
   
-    const deleteData = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch(url, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-            // Puedes agregar cualquier otra cabecera necesaria aquí
-          },
-        });
-        if (!response.ok) {
-          throw new Error('No se pudo eliminar la información');
-        }
-      } catch (error) {
-        setError(error as Error);
-      } finally {
-        setLoading(false);
-      }
-    };
+//     const deleteData = async () => {
+//       setLoading(true);
+//       try {
+//         const response = await fetch(url, {
+//           method: 'DELETE',
+//           headers: {
+//             'Content-Type': 'application/json',
+//             // Puedes agregar cualquier otra cabecera necesaria aquí
+//           },
+//         });
+//         if (!response.ok) {
+//           throw new Error('No se pudo eliminar la información');
+//         }
+//       } catch (error) {
+//         setError(error as Error);
+//       } finally {
+//         setLoading(false);
+//       }
+//     };
   
-    return { deleteData, loading, error };
-  }
+//     return { deleteData, loading, error };
+//   }
 
 

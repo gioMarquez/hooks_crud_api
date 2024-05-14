@@ -1,70 +1,86 @@
-import { useState } from "react";
-import { useFetch, useDelete } from "../hooks/useFetch";
-
-// interface Row {
-//   id: number;
-//   nombre: string;
-//   horario: string;
-//   latitud: string;
-//   longitud: string;
-//   estatus: number;
-// }
-
-
+import React, { useState } from "react";
+import { useFetch } from "../hooks/useFetch";
+import { OficinasRecau, CamposAd } from "../hooks/useFetch";
+import useDeleteRequest from "../hooks/useDelete";
 
 const OfiRecaudPage = () => {
-  const [inputValue, setInputValue] = useState<number>();
+	const URL = "http://codicedev:8080/ords/saceqsrv/fichaTecnica/oficinaRecaudadora/";
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(Number(e.target.value)); // Actualizar el estado con el valor del input
-  };
+  const [errorMessage, setErrorMessage] = useState('');
+	const [inputValue, setInputValue] = useState<number>();
+	const { deleteResource, isLoading, errorD } = useDeleteRequest( URL + inputValue );
+  // console.log(URL + inputValue)
 
-  
-  const {data, loading, error } = useFetch('http://codicedev:8080/ords/saceqsrv/fichaTecnica/oficinaRecaudadora?pagina=0');
-  const handleDeleteClick = () => {
-    if (inputValue) {
-      useDelete(`http://codicedev:8080/ords/saceqsrv/fichaTecnica/oficinaRecaudadora/${inputValue}`);
+  const handleDelete = async () => {
+    try {
+      await deleteResource();
+      // Aquí puedes realizar cualquier acción adicional después de eliminar el recurso
+    } catch (errorE) {
+      setErrorMessage('Error al eliminar el recurso. Por favor, inténtelo de nuevo más tarde.');
     }
   };
-  const { deleteData } = useDelete();
 
-     // Verifica si la carga está en curso
-  if (loading) return <p>Cargando...</p>;
-  
-  // Verifica si hubo un error
-  if (error) return <p>Hubo un error: {error.message}</p>;
-  return (
+
+	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setInputValue(Number(e.target.value));
+	};
+
+	const { data, loading, error } = useFetch(
+		"http://codicedev:8080/ords/saceqsrv/fichaTecnica/oficinaRecaudadora?pagina=0"
+	);
+
+	return (
 		<div>
-			<h1>Datos de la API:</h1>
+			<div className="grid grid-cols-4">
+				<input
+					type="number"
+					name="Eliminar"
+					className="bg-black text-white text-2xl  p-2  w-[300px] "
+					onChange={handleInputChange}
+				/>
+				<div className="col-span-3">
+        {isLoading && <p className="text-3xl">Eliminando recurso...</p>}
+				{errorMessage && <p>{errorMessage}</p>}
+					<button
+						className="bg-blue-600 text-white text-3xl px-10 py-2 rounded-2xl  ml-4"
+						onClick={() => handleDelete()}
+						disabled={loading}
+					>
+						{loading ? "Eliminando..." : "Eliminar"}
+					</button>
+					{error && <div>Error: {error.message}</div>}
+				</div>
+			</div>
+			<h1 className="pt-3">Datos de la API:</h1>
 			{data && (
 				<ul>
-					{/* Itera sobre los datos y muestra cada elemento */}
-					{data.datos.map((oficina) => (
-						<li key={oficina.id}>
-							ID: {oficina.id}, 
-              Nombre: {oficina.nombre}, 
-              Horario: {oficina.horario},
-              Latitud: {oficina.latitud},
-							Longitud: {oficina.longitud}, 
-              Estatus: {oficina.estatus}
+					{data.datos.map((item) => (
+						<li key={item.id}>
+							{isOficinasRecau(item) ? (
+								<>
+									ID: {item.id}, Nombre: {item.nombre},
+									Horario: {item.horario}, Latitud:{" "}
+									{item.latitud}, Longitud: {item.longitud},
+									Estatus: {item.estatus}
+								</>
+							) : (
+								<>
+									ID: {item.id}, Nombre: {item.nombre}, Tipo:{" "}
+									{item.tipo}, Estatus: {item.estatus}
+								</>
+							)}
 						</li>
 					))}
 				</ul>
 			)}
-			<input
-				type="number"
-				name="Eliminar"
-				className="bg-black text-white text-2xl m-4 p-2  w-[300px]"
-        onChange={handleInputChange}
-			/>
-			<button 
-        className="bg-red-800 px-4 w-[200px] h-[40px] text-white "
-        onClick={+}
-      >
-				Eliminar registro
-			</button>
 		</div>
-  );
-}
+	);
+};
+
+const isOficinasRecau = (
+	item: OficinasRecau | CamposAd
+): item is OficinasRecau => {
+	return "horario" in item;
+};
 
 export default OfiRecaudPage;
